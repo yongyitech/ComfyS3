@@ -55,16 +55,18 @@ class SaveImageS3:
                     for x in extra_pnginfo:
                         metadata.add_text(x, json.dumps(extra_pnginfo[x]))
             
-            file = f"{s3_path}.png"
+            file = f"{s3_path}.jpg"
             logger.info(f"s3 file name: {s3_path}")
             temp_file = None
             try:
                 # Create a temporary file
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_file:
                     temp_file_path = temp_file.name
                     
                     # Save the image to the temporary file
-                    img.save(temp_file_path, pnginfo=metadata, compress_level=self.compress_level)
+                    # img.save(temp_file_path, pnginfo=metadata, compress_level=self.compress_level)
+                    img = img.convert("RGB")
+                    img.save(temp_file_path, "jpeg", optimize=True, quality=85)
 
                     # Upload the temporary file to S3
                     s3_path = os.path.join(full_output_folder, file)
